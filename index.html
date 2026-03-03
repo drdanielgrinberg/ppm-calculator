@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Aortic Valve PPM Calculator</title>
+
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #ffffff;
+    color: #111;
+    margin: 24px;
+  }
+  h1 { margin: 0 0 6px; font-size: 20px; }
+  .subtitle { font-size: 12px; margin-bottom: 14px; line-height: 1.35; }
+  .bar {
+    border: 1px solid #ddd;
+    padding: 10px;
+    margin-bottom: 14px;
+    border-radius: 8px;
+  }
+  .row {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+    align-items: end;
+  }
+  label { display:block; font-size: 11px; color: #333; margin-bottom: 4px; }
+  input {
+    width: 100%;
+    padding: 7px 8px;
+    border: 1px solid #bbb;
+    border-radius: 6px;
+    font-size: 12px;
+  }
+  .actions {
+    display:flex;
+    gap: 10px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+  }
+  button {
+    padding: 8px 12px;
+    border: 1px solid #222;
+    background: #111;
+    color: #fff;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+  }
+  button.secondary {
+    background: #fff;
+    color: #111;
+  }
+  .kpi { margin-top: 8px; font-size: 12px; }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+  }
+  .card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .card h3 {
+    margin: 0;
+    padding: 8px 10px;
+    font-size: 13px;
+    background: #f7f7f7;
+    border-bottom: 1px solid #ddd;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11px;
+  }
+  th, td {
+    border-bottom: 1px solid #eee;
+    padding: 6px 6px;
+    text-align: center;
+  }
+  th {
+    font-weight: 700;
+    background: #fafafa;
+    border-bottom: 1px solid #ddd;
+  }
+  tr:last-child td { border-bottom: 0; }
+  .sev { background: #f8d7da; }
+  .mod { background: #fff3cd; }
+  .ok  { background: #d4edda; }
+
+  .footer {
+    margin-top: 16px;
+    padding-top: 10px;
+    border-top: 1px solid #ddd;
+    font-size: 11px;
+    line-height: 1.45;
+  }
+
+  @media (max-width: 900px) {
+    .row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid { grid-template-columns: 1fr; }
+  }
+
+  @media print {
+    /* One-screen / one-page printing */
+    body { margin: 10mm; }
+    button, .actions { display: none !important; }
+    input { border: 0; padding: 0; }
+    .bar { border: 0; padding: 0; margin-bottom: 10px; }
+    .card h3 { background: #fff; }
+    a { color: #111; text-decoration: none; }
+  }
+</style>
+</head>
+
+<body>
+
+<h1>Aortic Valve PPM Calculator</h1>
+<div class="subtitle">
+  Indexed EOA = EOA / BSA (Mosteller). Severe PPM ≤ 0.65; Moderate PPM 0.65–0.85 (cm²/m²).
+</div>
+
+<div class="bar">
+  <div class="row">
+    <div>
+      <label for="weight">Weight (kg)</label>
+      <input id="weight" type="number" step="0.1" value="80">
+    </div>
+    <div>
+      <label for="height">Height (cm)</label>
+      <input id="height" type="number" step="0.1" value="180">
+    </div>
+    <div>
+      <label for="surname">Surgeon surname</label>
+      <input id="surname" type="text" placeholder="e.g., Smith">
+    </div>
+    <div>
+      <label for="workplace">Workplace (for analytics)</label>
+      <input id="workplace" type="text" placeholder="e.g., HCL / Pradel">
+    </div>
+  </div>
+
+  <div class="actions">
+    <button id="okBtn">OK (log)</button>
+    <button class="secondary" id="pdfBtn">Generate PDF</button>
+  </div>
+
+  <div class="kpi">BSA: <strong id="bsa">—</strong> m²</div>
+</div>
+
+<div class="grid" id="cards"></div>
+
+<div class="footer">
+  <strong>Methodology acknowledgement.</strong><br>
+  Indexed effective orifice area (iEOA) is computed as EOA divided by body surface area (Mosteller formula).<br>
+  Prosthesis-specific EOA values were curated from published hemodynamic datasets (preferably one-year follow-up) and mapped to labeled sizes and outside diameters.<br>
+  PPM categories are derived from standard iEOA cutoffs (≤0.65 severe; 0.65–0.85 moderate cm²/m²).<br><br>
+
+  This page was created by Dr Daniel GRINBERG, cardiac surgeon at Hospices Civils de Lyon, France.<br><br>
+
+  The associated scientific manuscript is currently under submission; the DOI and publication link will be provided once available.
+</div>
+
+<script>
+  const DATA = {"Perimount Magna Ease": [{"label": 19, "outside": 24, "eoa": 1.23}, {"label": 21, "outside": 26, "eoa": 1.51}, {"label": 23, "outside": 28, "eoa": 1.73}, {"label": 25, "outside": 30, "eoa": 1.81}, {"label": 27, "outside": 32, "eoa": 2.0}, {"label": 29, "outside": 34, "eoa": 2.1}], "Inspiris Resilia": [{"label": 19, "outside": 25, "eoa": 1.1}, {"label": 21, "outside": 27, "eoa": 1.43}, {"label": 23, "outside": 29, "eoa": 1.69}, {"label": 25, "outside": 32, "eoa": 1.95}, {"label": 27, "outside": 34, "eoa": 2.26}, {"label": 29, "outside": 36, "eoa": 2.48}], "Avalus Ultra": [{"label": 19, "outside": 26, "eoa": 1.4}, {"label": 21, "outside": 28, "eoa": 1.57}, {"label": 23, "outside": 30, "eoa": 1.96}, {"label": 25, "outside": 32, "eoa": 2.11}, {"label": 27, "outside": 35, "eoa": 2.49}, {"label": 29, "outside": 37, "eoa": 3.0}], "Epic Plus Supra": [{"label": 19, "outside": 25, "eoa": 1.1}, {"label": 21, "outside": 28, "eoa": 1.37}, {"label": 23, "outside": 29, "eoa": 1.49}, {"label": 25, "outside": 31, "eoa": 1.69}, {"label": 27, "outside": 33, "eoa": null}, {"label": 29, "outside": 36, "eoa": null}]};
+  const LOG_ENDPOINT = "https://script.google.com/macros/s/AKfycbzYBZirk5_uRXYmYCBj0nMUGPP4X7_LA2Op6iYvxIfHSK3N2FrwLTdGR216XEHpD58h_g/exec";
+  const SEVERE = 0.65;
+  const MODERATE = 0.85;
+
+  const ORDER = [
+    "Perimount Magna Ease",
+    "Inspiris Resilia",
+    "Avalus Ultra",
+    "Epic Plus Supra"
+  ];
+
+  function mosteller(heightCm, weightKg) {
+    return Math.sqrt((heightCm * weightKg) / 3600);
+  }
+
+  function classify(iEOA) {
+    if (iEOA == null || !isFinite(iEOA)) return { label: "N/A", cls: "" };
+    if (iEOA <= SEVERE) return { label: "Severe", cls: "sev" };
+    if (iEOA <= MODERATE) return { label: "Moderate", cls: "mod" };
+    return { label: "OK", cls: "ok" };
+  }
+
+  function fmt(x, d) {
+    if (x == null || !isFinite(x)) return "N/A";
+    return x.toFixed(d);
+  }
+
+  function getInputs() {
+    const w = parseFloat(document.getElementById("weight").value);
+    const h = parseFloat(document.getElementById("height").value);
+    const surname = (document.getElementById("surname").value || "").trim();
+    const workplace = (document.getElementById("workplace").value || "").trim();
+    return { w, h, surname, workplace };
+  }
+
+  async function logEvent(type, payload) {
+    try {
+      await fetch(LOG_ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type, ...payload })
+      });
+    } catch (e) {
+      console.warn("Logging failed:", e);
+    }
+  }
+
+  function render(bsa) {
+    document.getElementById("bsa").textContent = bsa.toFixed(3);
+
+    const cards = document.getElementById("cards");
+    cards.innerHTML = "";
+
+    for (const name of ORDER) {
+      const list = (DATA[name] || []).slice().sort((a,b) => (a.outside ?? 0) - (b.outside ?? 0));
+
+      const card = document.createElement("div");
+      card.className = "card";
+      const title = document.createElement("h3");
+      title.textContent = name;
+
+      const table = document.createElement("table");
+      table.innerHTML = `
+        <thead>
+          <tr>
+            <th>Label</th>
+            <th>Outside diameter (mm)</th>
+            <th>EOA (cm²)</th>
+            <th>iEOA (cm²/m²)</th>
+            <th>PPM</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      `;
+
+      const tbody = table.querySelector("tbody");
+
+      for (const r of list) {
+        const eoa = r.eoa;
+        const iEOA = (eoa == null) ? null : (eoa / bsa);
+        const ppm = classify(iEOA);
+
+        const tr = document.createElement("tr");
+        tr.className = ppm.cls;
+        tr.innerHTML = `
+          <td>${r.label ?? "—"}</td>
+          <td>${r.outside ?? "—"}</td>
+          <td>${eoa == null ? "N/A" : fmt(eoa,2)}</td>
+          <td>${iEOA == null ? "N/A" : fmt(iEOA,2)}</td>
+          <td>${ppm.label}</td>
+        `;
+        tbody.appendChild(tr);
+      }
+
+      card.appendChild(title);
+      card.appendChild(table);
+      cards.appendChild(card);
+    }
+  }
+
+  function compute() {
+    const { w, h } = getInputs();
+    if (!isFinite(w) || w <= 0 || !isFinite(h) || h <= 0) {
+      alert("Please enter valid height and weight.");
+      return null;
+    }
+    const bsa = mosteller(h, w);
+    render(bsa);
+    return bsa;
+  }
+
+  document.getElementById("okBtn").addEventListener("click", async () => {
+    const { w, h, surname, workplace } = getInputs();
+    const bsa = compute();
+    if (!bsa) return;
+
+    await logEvent("ok", {
+      ts: new Date().toISOString(),
+      weightKg: w,
+      heightCm: h,
+      bsa: bsa,
+      surname: surname || null,
+      workplace: workplace || null,
+      userAgent: navigator.userAgent
+    });
+  });
+
+  document.getElementById("pdfBtn").addEventListener("click", async () => {
+    const { w, h, surname, workplace } = getInputs();
+    const bsa = compute();
+    if (!bsa) return;
+
+    // Print to PDF via browser print dialog (ensures single page layout)
+    window.print();
+
+    await logEvent("pdf", {
+      ts: new Date().toISOString(),
+      weightKg: w,
+      heightCm: h,
+      bsa: bsa,
+      surname: surname || null,
+      workplace: workplace || null,
+      userAgent: navigator.userAgent
+    });
+  });
+
+  // Initial render
+  compute();
+</script>
+
+</body>
+</html>
