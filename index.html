@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Aortic Valve PPM Calculator</title>
+<title>Recommended prosthesis size to avoid severe PPM</title>
 
 <style>
   body {
@@ -120,7 +120,9 @@
 
 <h1>Aortic Valve PPM Calculator</h1>
 <div class="subtitle">
-  Indexed EOA = EOA / BSA (Mosteller). Severe PPM ≤ 0.65; Moderate PPM 0.65–0.85 (cm²/m²).
+Indexed effective orifice area (iEOA) is calculated as EOA divided by body surface area (Mosteller formula).
+EOA values correspond to published one-year postoperative hemodynamic measurements for each prosthesis size.
+Severe patient–prosthesis mismatch (PPM) is defined as iEOA ≤ 0.65 cm²/m² and moderate PPM as 0.65–0.85 cm²/m².
 </div>
 
 <div class="bar">
@@ -154,14 +156,17 @@
 <div class="grid" id="cards"></div>
 
 <div class="footer">
-  <strong>Methodology acknowledgement.</strong><br>
-  Indexed effective orifice area (iEOA) is computed as EOA divided by body surface area (Mosteller formula).<br>
-  Prosthesis-specific EOA values were curated from published hemodynamic datasets (preferably one-year follow-up) and mapped to labeled sizes and outside diameters.<br>
-  PPM categories are derived from standard iEOA cutoffs (≤0.65 severe; 0.65–0.85 moderate cm²/m²).<br><br>
+<strong>Methodology acknowledgement.</strong><br>
+Indexed effective orifice area (iEOA) is computed as EOA divided by body surface area using the Mosteller formula.<br>
+EOA values used in this calculator correspond to published one-year postoperative hemodynamic measurements for each surgical bioprosthesis and prosthesis size.<br>
+Patient–prosthesis mismatch categories follow standard indexed EOA thresholds (≤0.65 severe; 0.65–0.85 moderate cm²/m²).<br><br>
 
-  This page was created by Dr Daniel GRINBERG, cardiac surgeon at Hospices Civils de Lyon, France.<br><br>
+This tool does not store or process any patient-identifiable information.<br><br>
 
-  The associated scientific manuscript is currently under submission; the DOI and publication link will be provided once available.
+This page was created by Dr Daniel GRINBERG, cardiac surgeon at Hospices Civils de Lyon, France.<br><br>
+
+The associated scientific manuscript is currently under submission.  
+The DOI reference and publication link will be provided upon acceptance.
 </div>
 
 <script>
