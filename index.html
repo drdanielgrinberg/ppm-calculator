@@ -1,325 +1,151 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Recommended prosthesis size to avoid severe PPM</title>
-
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Aortic Bioprosthesis Selection Calculator (PPM) v2</title>
 <style>
-  body {
-    font-family: Arial, sans-serif;
-    background: #ffffff;
-    color: #111;
-    margin: 24px;
-  }
-  h1 { margin: 0 0 6px; font-size: 20px; }
-  .subtitle { font-size: 12px; margin-bottom: 14px; line-height: 1.35; }
-  .bar {
-    border: 1px solid #ddd;
-    padding: 10px;
-    margin-bottom: 14px;
-    border-radius: 8px;
-  }
-  .row {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 10px;
-    align-items: end;
-  }
-  label { display:block; font-size: 11px; color: #333; margin-bottom: 4px; }
-  input {
-    width: 100%;
-    padding: 7px 8px;
-    border: 1px solid #bbb;
-    border-radius: 6px;
-    font-size: 12px;
-  }
-  .actions {
-    display:flex;
-    gap: 10px;
-    margin-top: 10px;
-    flex-wrap: wrap;
-  }
-  button {
-    padding: 8px 12px;
-    border: 1px solid #222;
-    background: #111;
-    color: #fff;
-    border-radius: 6px;
-    font-size: 12px;
-    cursor: pointer;
-  }
-  button.secondary {
-    background: #fff;
-    color: #111;
-  }
-  .kpi { margin-top: 8px; font-size: 12px; }
-  .grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 14px;
-  }
-  .card {
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    overflow: hidden;
-  }
-  .card h3 {
-    margin: 0;
-    padding: 8px 10px;
-    font-size: 13px;
-    background: #f7f7f7;
-    border-bottom: 1px solid #ddd;
-  }
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 11px;
-  }
-  th, td {
-    border-bottom: 1px solid #eee;
-    padding: 6px 6px;
-    text-align: center;
-  }
-  th {
-    font-weight: 700;
-    background: #fafafa;
-    border-bottom: 1px solid #ddd;
-  }
-  tr:last-child td { border-bottom: 0; }
-  .sev { background: #f8d7da; }
-  .mod { background: #fff3cd; }
-  .ok  { background: #d4edda; }
-
-  .footer {
-    margin-top: 16px;
-    padding-top: 10px;
-    border-top: 1px solid #ddd;
-    font-size: 11px;
-    line-height: 1.45;
-  }
-
-  @media (max-width: 900px) {
-    .row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .grid { grid-template-columns: 1fr; }
-  }
-
-  @media print {
-    /* One-screen / one-page printing */
-    body { margin: 10mm; }
-    button, .actions { display: none !important; }
-    input { border: 0; padding: 0; }
-    .bar { border: 0; padding: 0; margin-bottom: 10px; }
-    .card h3 { background: #fff; }
-    a { color: #111; text-decoration: none; }
-  }
+  :root{--ink:#111;--muted:#555;--line:#ddd;--sev:#f8d7da;--mod:#fff3cd;--ok:#d4edda;--opt:#cfe2ff;--card:#fafafa;}
+  *{box-sizing:border-box}
+  body{font-family:Arial,Helvetica,sans-serif;color:var(--ink);background:#fff;margin:0;padding:20px;max-width:1180px;margin-inline:auto}
+  h1{font-size:20px;margin:0 0 4px}
+  .sub{font-size:12px;color:var(--muted);line-height:1.4;margin-bottom:14px}
+  .panel{border:1px solid var(--line);border-radius:8px;padding:12px;margin-bottom:14px;background:var(--card)}
+  .row{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;align-items:end}
+  label{display:block;font-size:11px;color:#333;margin-bottom:3px}
+  input,select{width:100%;padding:7px 8px;border:1px solid #bbb;border-radius:6px;font-size:13px;background:#fff}
+  .kpi{margin-top:10px;font-size:13px;display:flex;gap:18px;flex-wrap:wrap}
+  .kpi b{font-size:15px}
+  .legend{display:flex;gap:10px;flex-wrap:wrap;font-size:11px;margin-top:8px}
+  .chip{padding:3px 8px;border-radius:4px;border:1px solid var(--line)}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:12px}
+  .card{border:1px solid var(--line);border-radius:8px;overflow:hidden;background:#fff}
+  .card h3{margin:0;padding:8px 10px;font-size:13px;background:#f3f3f3;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
+  .card h3 small{font-weight:normal;color:var(--muted);font-size:11px}
+  table{width:100%;border-collapse:collapse;font-size:12px}
+  th,td{border-bottom:1px solid #eee;padding:6px 5px;text-align:center}
+  th{background:#fafafa;font-weight:700;font-size:11px}
+  tr:last-child td{border-bottom:0}
+  tr.sev td{background:var(--sev)} tr.mod td{background:var(--mod)} tr.ok td{background:var(--ok)} tr.opt td{background:var(--opt)}
+  td.min{font-weight:700;text-decoration:underline}
+  .src{font-size:10px;color:var(--muted);padding:6px 10px;border-top:1px solid #eee;line-height:1.4}
+  .actions{display:flex;gap:10px;margin-top:10px;flex-wrap:wrap}
+  button{padding:8px 12px;border:1px solid #222;background:#111;color:#fff;border-radius:6px;font-size:12px;cursor:pointer}
+  button.secondary{background:#fff;color:#111}
+  .note{font-size:11px;color:var(--muted);line-height:1.45;margin-top:14px;border-top:1px solid var(--line);padding-top:10px}
+  .warn{background:#fff8e1;border:1px solid #f0d58c;border-radius:6px;padding:8px 10px;font-size:12px;margin-top:10px;line-height:1.4}
+  @media (max-width:800px){.row{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  @media print{body{padding:8mm}button,.actions,select,.legend{display:none!important}.panel{background:#fff}input{border:0;padding:0}.card{break-inside:avoid}}
 </style>
 </head>
-
 <body>
 
-<h1>Aortic Valve PPM Calculator</h1>
-<div class="subtitle">
-Indexed effective orifice area (iEOA) is calculated as EOA divided by body surface area (Mosteller formula).
-EOA values correspond to published one-year postoperative hemodynamic measurements for each prosthesis size.
-Severe patient–prosthesis mismatch (PPM) is defined as iEOA ≤ 0.65 cm²/m² and moderate PPM as 0.65–0.85 cm²/m².
+<h1>Aortic Bioprosthesis Selection Calculator <small style="font-size:12px;color:#555">v2.0, October 2026</small></h1>
+<div class="sub">
+  Enter the patient. The tool returns, for each bioprosthesis, the labeled sizes with their published one-year effective orifice area (EOA), the predicted indexed EOA (EOAi = EOA / BSA), the expected one-year mean gradient, and the manufacturer external diameter.
+  The <b>smallest size reaching the EOAi floor</b> is underlined. The tool does not take aortic root dimensions: compare the external diameter yourself with the sinuses of Valsalva and the sinotubular junction measured on preoperative CT.
 </div>
 
-<div class="bar">
+<div class="panel">
   <div class="row">
-    <div>
-      <label for="weight">Weight (kg)</label>
-      <input id="weight" type="number" step="0.1" value="80">
-    </div>
-    <div>
-      <label for="height">Height (cm)</label>
-      <input id="height" type="number" step="0.1" value="180">
-    </div>
-    <div>
-      <label for="surname">Surgeon surname</label>
-      <input id="surname" type="text" placeholder="e.g., Smith">
-    </div>
-    <div>
-      <label for="workplace">Workplace (for analytics)</label>
-      <input id="workplace" type="text" placeholder="e.g., HCL / Pradel">
-    </div>
+    <div><label for="weight">Weight (kg)</label><input id="weight" type="number" step="0.1" value="80"></div>
+    <div><label for="height">Height (cm)</label><input id="height" type="number" step="0.1" value="175"></div>
+    <div><label for="bsaFormula">BSA formula</label>
+      <select id="bsaFormula"><option value="mosteller">Mosteller</option><option value="dubois">DuBois</option></select></div>
+    <div><label for="floor">EOAi floor (cm²/m²)</label>
+      <select id="floor"><option value="0.85">0.85 (standard)</option><option value="0.70">0.70 (BMI ≥ 30, VARC-3)</option></select></div>
+    <div><label for="legacy">Also show</label>
+      <select id="legacy"><option value="none">Current valves only</option><option value="all">Include earlier models</option></select></div>
   </div>
-
+  <div class="kpi">
+    <span>BSA: <b id="bsa">–</b> m²</span>
+    <span>BMI: <b id="bmi">–</b> kg/m²</span>
+    <span>EOA required for the floor: <b id="eoaReq">–</b> cm²</span>
+  </div>
+  <div class="legend">
+    <span class="chip" style="background:var(--sev)">Severe PPM: EOAi &lt; 0.65</span>
+    <span class="chip" style="background:var(--mod)">Moderate PPM: 0.65 to 0.85</span>
+    <span class="chip" style="background:var(--ok)">No PPM: 0.85 to 1.0</span>
+    <span class="chip" style="background:var(--opt)">EOAi &ge; 1.0 (benefit above the floor not demonstrated)</span>
+    <span class="chip">Underlined: smallest size reaching the floor</span>
+  </div>
   <div class="actions">
-    <button id="okBtn">OK (log)</button>
-    <button class="secondary" id="pdfBtn">Generate PDF</button>
+    <button id="pdfBtn" class="secondary">Print / save as PDF</button>
   </div>
-
-  <div class="kpi">BSA: <strong id="bsa">—</strong> m²</div>
+  <div class="warn" id="obesityWarn" style="display:none">BMI ≥ 30: body surface area overestimates the metabolic demand of obese patients; the 2021 VARC-3 consensus uses lower EOAi thresholds (0.70 moderate, 0.55 severe). Select the 0.70 floor if you follow that convention.</div>
 </div>
 
 <div class="grid" id="cards"></div>
 
-<div class="footer">
-<strong>Methodology acknowledgement.</strong><br>
-Indexed effective orifice area (iEOA) is computed as EOA divided by body surface area using the Mosteller formula.<br>
-EOA values used in this calculator correspond to published one-year postoperative hemodynamic measurements for each surgical bioprosthesis and prosthesis size.<br>
-Patient–prosthesis mismatch categories follow standard indexed EOA thresholds (≤0.65 severe; 0.65–0.85 moderate cm²/m²).<br><br>
-
-This tool does not store or process any patient-identifiable information.<br><br>
-
-This page was created by Dr Daniel GRINBERG, cardiac surgeon at Hospices Civils de Lyon, France.<br><br>
-
-The associated scientific manuscript is currently under submission.  
-The DOI reference and publication link will be provided upon acceptance.
+<div class="note">
+  <b>How to read the result.</b> Red and yellow mark the evidence-based floors for patient-prosthesis mismatch, below which outcome is worse. Green means the floor is cleared. Blue (EOAi ≥ 1.0 cm²/m²) is shown because a recent analysis suggests continuing benefit above the conventional threshold, but whether an EOAi above 0.85 cm²/m² or a gradient below 10 mmHg improves outcome is not demonstrated; blue is not a target. How far above the floor to aim, and at what operative cost (annular or sinus enlargement), depends on age, activity, ventricular function, operative risk, and concomitant procedures.<br>
+  <b>Data.</b> One-year EOA and mean gradient are patient-weighted means of published series stratified by labeled size (sources listed under each valve); between-study variability is substantial and echocardiographic methods were not standardized. External diameters are manufacturer specifications and were not independently verified. The Avalus Ultra will be added when size-specific one-year data are available.<br>
+  <b>Root check.</b> A prosthesis can be seated in supra-annular position when its external diameter does not exceed the sinus of Valsalva diameter; the aorta can be closed over it when the sinotubular junction is not narrower than the prosthesis. When the sinus is too small, annular enlargement is needed; when only the sinotubular junction is too small, a supra-annular (non-coronary sinus) patch suffices. These are the authors' institutional rules, not validated thresholds.<br>
+  Created by Dr Daniel Grinberg, Hospices Civils de Lyon. Open source: github.com/drdanielgrinberg/ppm-calculator. No patient data are stored; an anonymous visit counter (date, tool version) is recorded.
 </div>
 
 <script>
-  const DATA = {"Perimount Magna Ease": [{"label": 19, "outside": 24, "eoa": 1.23}, {"label": 21, "outside": 26, "eoa": 1.51}, {"label": 23, "outside": 28, "eoa": 1.73}, {"label": 25, "outside": 30, "eoa": 1.81}, {"label": 27, "outside": 32, "eoa": 2.0}, {"label": 29, "outside": 34, "eoa": 2.1}], "Inspiris Resilia": [{"label": 19, "outside": 25, "eoa": 1.1}, {"label": 21, "outside": 27, "eoa": 1.43}, {"label": 23, "outside": 29, "eoa": 1.69}, {"label": 25, "outside": 32, "eoa": 1.95}, {"label": 27, "outside": 34, "eoa": 2.26}, {"label": 29, "outside": 36, "eoa": 2.48}], "Avalus": [{"label": 19, "outside": 26, "eoa": 1.4}, {"label": 21, "outside": 28, "eoa": 1.57}, {"label": 23, "outside": 30, "eoa": 1.96}, {"label": 25, "outside": 32, "eoa": 2.11}, {"label": 27, "outside": 35, "eoa": 2.49}, {"label": 29, "outside": 37, "eoa": 3.0}], "Epic Plus Supra": [{"label": 19, "outside": 25, "eoa": 1.1}, {"label": 21, "outside": 28, "eoa": 1.37}, {"label": 23, "outside": 29, "eoa": 1.49}, {"label": 25, "outside": 31, "eoa": 1.69}, {"label": 27, "outside": 33, "eoa": null}, {"label": 29, "outside": 36, "eoa": null}]};
-  const LOG_ENDPOINT = "https://script.google.com/macros/s/AKfycbzYBZirk5_uRXYmYCBj0nMUGPP4X7_LA2Op6iYvxIfHSK3N2FrwLTdGR216XEHpD58h_g/exec";
-  const SEVERE = 0.65;
-  const MODERATE = 0.85;
+// ===== DATA: single source of truth = Supplementary Table S1 (v2). Edit here only. =====
+const VALVES = [
+ {name:"Perimount Magna Ease", maker:"Edwards", current:true,
+  sources:"EOA/gradient: Kim 2020 (10.5090/kjtcs.19.099); Tsui 2022 (10.1111/jocs.17140); Dalmau 2006 (10.1510/icvts.2006.144196); Ueda 2012 (10.1007/s10396-012-0347-x); Wyss 2015 (10.1093/icvts/ivv284); Jastrzebski 2013 (10.5114/aoms.2013.35479). External diameter: Edwards IFU.",
+  sizes:[{label:19,od:24,eoa:1.20,n:124,gr:16.8},{label:21,od:26,eoa:1.51,n:144,gr:14.2},{label:23,od:28,eoa:1.73,n:237,gr:11.9},{label:25,od:30,eoa:1.81,n:122,gr:11.3},{label:27,od:32,eoa:2.00,n:23,gr:10.1},{label:29,od:34,eoa:2.10,n:10,gr:9.0}]},
+ {name:"Inspiris Resilia", maker:"Edwards", current:true,
+  sources:"EOA/gradient: Bartus 2021 (10.1007/s12325-021-01705-x); Saydoun 2023 (10.1093/icvts/ivad115); Frontiers 2023 (10.3389/fcvm.2023.1196447); Edwards model 11500A technical report. External diameter: Edwards IFU.",
+  sizes:[{label:19,od:25,eoa:1.10,n:33,gr:18.4},{label:21,od:27,eoa:1.43,n:211,gr:14.4},{label:23,od:29,eoa:1.69,n:464,gr:11.3},{label:25,od:32,eoa:1.95,n:391,gr:10.5},{label:27,od:34,eoa:2.26,n:236,gr:9.1},{label:29,od:36,eoa:2.48,n:50,gr:8.1}]},
+ {name:"Avalus", maker:"Medtronic", current:true,
+  sources:"EOA/gradient: PERIGON (10.1093/ejcts/ezae122); Seoul 2022 (10.1055/s-0042-1753494). External diameter: Medtronic IFU. Avalus Ultra: same leaflet and stent design, size-specific one-year data pending.",
+  sizes:[{label:19,od:27,eoa:1.40,n:46,gr:17.0},{label:21,od:29,eoa:1.57,n:190,gr:16.0},{label:23,od:31,eoa:1.96,n:334,gr:13.0},{label:25,od:33,eoa:2.11,n:307,gr:12.1},{label:27,od:36,eoa:2.49,n:84,gr:10.0},{label:29,od:38,eoa:3.00,n:10,gr:10.0}]},
+ {name:"Trifecta (withdrawn 2023)", maker:"Abbott", current:false,
+  sources:"EOA/gradient: 10.1093/ejcts/ezae122; Wyss 2015 (10.1093/icvts/ivv284); FDA PMA P100029; 10.1186/s13019-015-0379-6. Withdrawn for early structural deterioration; shown for comparison only.",
+  sizes:[{label:19,od:24,eoa:1.40,n:151,gr:13.3},{label:21,od:26,eoa:1.70,n:295,gr:9.3},{label:23,od:28,eoa:1.83,n:347,gr:8.2},{label:25,od:31,eoa:2.06,n:179,gr:6.6},{label:27,od:33,eoa:2.28,n:55,gr:5.6},{label:29,od:35,eoa:2.58,n:15,gr:5.1}]},
+ {name:"Epic Plus Supra", maker:"Abbott", current:false,
+  sources:"EOA/gradient: 10.1093/ejcts/ezae122; Jastrzebski 2013 (10.5114/aoms.2013.35479). Very small pooled numbers; interpret with caution.",
+  sizes:[{label:19,od:25,eoa:1.00,n:1,gr:17.8},{label:21,od:28,eoa:1.37,n:9,gr:14.0},{label:23,od:29,eoa:1.49,n:7,gr:14.7},{label:25,od:31,eoa:1.69,n:4,gr:null},{label:27,od:33,eoa:null,n:0,gr:null},{label:29,od:35,eoa:null,n:0,gr:null}]}
+];
+const LOG_ENDPOINT = "https://script.google.com/macros/s/AKfycbzYBZirk5_uRXYmYCBj0nMUGPP4X7_LA2Op6iYvxIfHSK3N2FrwLTdGR216XEHpD58h_g/exec";
 
-  const ORDER = [
-    "Perimount Magna Ease",
-    "Inspiris Resilia",
-    "Avalus",
-    "Epic Plus Supra"
-  ];
+const $=id=>document.getElementById(id);
+function bsaCalc(h,w,f){ return f==="dubois" ? 0.007184*Math.pow(w,0.425)*Math.pow(h,0.725) : Math.sqrt(h*w/3600); }
+function cls(e,floor){ if(e==null||!isFinite(e)) return ""; if(e<0.65) return "sev"; if(e<floor) return "mod"; if(e<1.0) return "ok"; return "opt"; }
+function lab(e,floor){ if(e==null||!isFinite(e)) return "n/a"; if(e<0.65) return "severe"; if(e<floor) return "moderate"; if(e<1.0) return "none"; return "none (≥ 1.0)"; }
+const f=(x,d)=> (x==null||!isFinite(x)) ? "n/a" : x.toFixed(d);
 
-  function mosteller(heightCm, weightKg) {
-    return Math.sqrt((heightCm * weightKg) / 3600);
-  }
-
-  function classify(iEOA) {
-    if (iEOA == null || !isFinite(iEOA)) return { label: "N/A", cls: "" };
-    if (iEOA <= SEVERE) return { label: "Severe", cls: "sev" };
-    if (iEOA <= MODERATE) return { label: "Moderate", cls: "mod" };
-    return { label: "OK", cls: "ok" };
-  }
-
-  function fmt(x, d) {
-    if (x == null || !isFinite(x)) return "N/A";
-    return x.toFixed(d);
-  }
-
-  function getInputs() {
-    const w = parseFloat(document.getElementById("weight").value);
-    const h = parseFloat(document.getElementById("height").value);
-    const surname = (document.getElementById("surname").value || "").trim();
-    const workplace = (document.getElementById("workplace").value || "").trim();
-    return { w, h, surname, workplace };
-  }
-
-  async function logEvent(type, payload) {
-    try {
-      await fetch(LOG_ENDPOINT, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ type, ...payload })
-      });
-    } catch (e) {
-      console.warn("Logging failed:", e);
+function render(){
+  const w=parseFloat($("weight").value), h=parseFloat($("height").value);
+  if(!(w>0&&h>0)) return;
+  const bsa=bsaCalc(h,w,$("bsaFormula").value), bmi=w/Math.pow(h/100,2), floor=parseFloat($("floor").value);
+  $("bsa").textContent=bsa.toFixed(2); $("bmi").textContent=bmi.toFixed(1); $("eoaReq").textContent=(floor*bsa).toFixed(2);
+  $("obesityWarn").style.display = bmi>=30 ? "block" : "none";
+  const showAll=$("legacy").value==="all";
+  const cards=$("cards"); cards.innerHTML="";
+  for(const v of VALVES){
+    if(!v.current && !showAll) continue;
+    const req=floor*bsa;
+    const minSize=v.sizes.filter(s=>s.eoa!=null && s.eoa>=req).map(s=>s.label)[0];
+    const card=document.createElement("div"); card.className="card";
+    card.innerHTML=`<h3><span>${v.name}</span><small>${minSize?`smallest size reaching the floor: ${minSize} mm (external ${v.sizes.find(s=>s.label===minSize).od} mm)`:"no size reaches the floor"}</small></h3>
+      <table><thead><tr><th>Label (mm)</th><th>External diameter (mm)</th><th>1-yr EOA (cm²)</th><th>Pooled n</th><th>Predicted EOAi (cm²/m²)</th><th>PPM</th><th>Expected 1-yr mean gradient (mmHg)</th></tr></thead><tbody></tbody></table>
+      <div class="src">${v.sources}</div>`;
+    const tb=card.querySelector("tbody");
+    for(const s of v.sizes){
+      const e=(s.eoa==null)?null:s.eoa/bsa;
+      const tr=document.createElement("tr"); tr.className=cls(e,floor);
+      tr.innerHTML=`<td class="${s.label===minSize?"min":""}">${s.label}</td><td>${s.od}</td><td>${f(s.eoa,2)}</td><td>${s.n||"–"}</td><td>${f(e,2)}</td><td>${lab(e,floor)}</td><td>${f(s.gr,1)}</td>`;
+      tb.appendChild(tr);
     }
+    cards.appendChild(card);
   }
-
-  function render(bsa) {
-    document.getElementById("bsa").textContent = bsa.toFixed(3);
-
-    const cards = document.getElementById("cards");
-    cards.innerHTML = "";
-
-    for (const name of ORDER) {
-      const list = (DATA[name] || []).slice().sort((a,b) => (a.outside ?? 0) - (b.outside ?? 0));
-
-      const card = document.createElement("div");
-      card.className = "card";
-      const title = document.createElement("h3");
-      title.textContent = name;
-
-      const table = document.createElement("table");
-      table.innerHTML = `
-        <thead>
-          <tr>
-            <th>Label</th>
-            <th>Outside diameter (mm)</th>
-            <th>EOA (cm²)</th>
-            <th>iEOA (cm²/m²)</th>
-            <th>PPM</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      `;
-
-      const tbody = table.querySelector("tbody");
-
-      for (const r of list) {
-        const eoa = r.eoa;
-        const iEOA = (eoa == null) ? null : (eoa / bsa);
-        const ppm = classify(iEOA);
-
-        const tr = document.createElement("tr");
-        tr.className = ppm.cls;
-        tr.innerHTML = `
-          <td>${r.label ?? "—"}</td>
-          <td>${r.outside ?? "—"}</td>
-          <td>${eoa == null ? "N/A" : fmt(eoa,2)}</td>
-          <td>${iEOA == null ? "N/A" : fmt(iEOA,2)}</td>
-          <td>${ppm.label}</td>
-        `;
-        tbody.appendChild(tr);
-      }
-
-      card.appendChild(title);
-      card.appendChild(table);
-      cards.appendChild(card);
-    }
-  }
-
-  function compute() {
-    const { w, h } = getInputs();
-    if (!isFinite(w) || w <= 0 || !isFinite(h) || h <= 0) {
-      alert("Please enter valid height and weight.");
-      return null;
-    }
-    const bsa = mosteller(h, w);
-    render(bsa);
-    return bsa;
-  }
-
-  document.getElementById("okBtn").addEventListener("click", async () => {
-    const { w, h, surname, workplace } = getInputs();
-    const bsa = compute();
-    if (!bsa) return;
-
-    await logEvent("ok", {
-      ts: new Date().toISOString(),
-      weightKg: w,
-      heightCm: h,
-      bsa: bsa,
-      surname: surname || null,
-      workplace: workplace || null,
-      userAgent: navigator.userAgent
-    });
-  });
-
-  document.getElementById("pdfBtn").addEventListener("click", async () => {
-    const { w, h, surname, workplace } = getInputs();
-    const bsa = compute();
-    if (!bsa) return;
-
-    // Print to PDF via browser print dialog (ensures single page layout)
-    window.print();
-
-    await logEvent("pdf", {
-      ts: new Date().toISOString(),
-      weightKg: w,
-      heightCm: h,
-      bsa: bsa,
-      surname: surname || null,
-      workplace: workplace || null,
-      userAgent: navigator.userAgent
-    });
-  });
-
-  // Initial render
-  compute();
+}
+["weight","height","bsaFormula","floor","legacy"].forEach(id=>$(id).addEventListener("input",render));
+function logEvent(type){
+  // Anonymous use counter: event type, timestamp, tool version, screen class. No patient data, no identifiers.
+  try{ fetch(LOG_ENDPOINT,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain;charset=utf-8"},
+       body:JSON.stringify({type:type,ts:new Date().toISOString(),v:"2.0",screen:(window.innerWidth<800?"mobile":"desktop"),lang:navigator.language||""})}); }catch(e){}
+}
+$("pdfBtn").addEventListener("click",()=>{ window.print(); logEvent("print"); });
+render();
+logEvent("visit");
 </script>
-
 </body>
 </html>
